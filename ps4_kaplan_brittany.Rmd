@@ -175,15 +175,19 @@ git cat-file -s 1b1d54f
 
 1. Open up your `problemset4.R` file in **RStudio** and erase the comment containing your name at the top of the file. Replace it with a line to import the `tidyverse` library.
 
+echo "library(tidyverse)" > problemset4.R
+
 \textcolor{red}{\textbf{/1}}
 
 2. Next, you'll be reading in some CSV data directly from the web (i.e., without downloading it first). Navigate to the **Equality of Opportunity Project** data page [here](http://www.equality-of-opportunity.org/data/) and scroll to the **Mobility Report Cards: The Role of Colleges in Intergenerational Mobility** section. Expand the data section and copy the URL for the **Excel** link of **Online Data Table 2**. (_Note_: This is actually a CSV file, not Excel)
 
     In your `problemset4.R` file, use an R function to directly read in the CSV data using the URL and store it in an object called `mrc`.
- 
+echo "mrc <- read_csv(file = 'http://www.equality-of-opportunity.org/data/college/mrc_table2.csv')" >> problemset4.R
+
 \textcolor{red}{\textbf{/0.5}}
 
 3. Create a new object called `mrc_subset` based on `mrc` that contains only the following variables: `name, par_q1, par_q2, par_q3, par_q4, par_q5`. Refer to the [codebook](http://www.equality-of-opportunity.org/data/college/Codebook%20MRC%20Table%202.pdf) to see what these variables mean.
+echo "mrc_subset <- subset(mrc, select = c(name, par_q1, par_q2, par_q3, par_q4, par_q5))" >> problemset4.R
 
 \textcolor{red}{\textbf{/2}}
 
@@ -194,9 +198,16 @@ git cat-file -s 1b1d54f
     - The `quintile` column should contain the following values obtained from the column names of `mrc_subset`: `q1`, `q2`, `q3`, `q4`, `q5` (_Note that we want to drop the `par_` prefix_)
     - The `fraction` column should contain the corresponding values for each quintile
 
+echo "mrc_pivot<- mrc_subset %>% 
+  pivot_longer(cols = 'par_q1':'par_q5',
+               names_to = 'quantile',
+               values_to = 'fraction')" >> problemset4.R
+               
 \textcolor{red}{\textbf{/1}}
 
 5. Add and commit your `problemset4.R` file.
+git add problemset4.R
+git commit -m "Committing changes in problemset4.R"
 
 \textcolor{red}{\textbf{/0.5}}
 
@@ -204,8 +215,16 @@ git cat-file -s 1b1d54f
 
 ```
 # Git command you used to see the contents of problemset4.R
+git cat-file -p 876ff50f6173f553c7199e0a3311f650a75d8f5a
 
 # The output of git cat-file
+library(tidyverse)
+mrc <- read_csv(file = 'http://www.equality-of-opportunity.org/data/college/mrc_table2.csv')
+mrc_subset <- subset(mrc, select = c(name, par_q1, par_q2, par_q3, par_q4, par_q5))
+mrc_pivot<- mrc_subset %>% 
+  pivot_longer(cols = 'par_q1':'par_q5',
+               names_to = 'quantile',
+               values_to = 'fraction')
 
 ```
 \textcolor{red}{\textbf{/0.5}}
@@ -214,14 +233,16 @@ git cat-file -s 1b1d54f
 
 ```
 # Git command to see contents of hash ID from question 2.4
+git cat-file -p bb6121fd97505eb22094bd8719ac960186cd5244
 
 # The output of git cat-file
+#Brittany Kaplan
 ```
 \textcolor{red}{\textbf{/1}}
 
 8. In your own words, explain why the output for git cat-file was different in questions six and seven, even though they pointed to the same `problemset4.R` file.
     
-    __ANSWER__: 
+    __ANSWER__: The output of git cat-file was different because they pointed to different hashes (different points in time that problemset4.R was saved).
 
 
 # Part IV: Practice with git
@@ -230,10 +251,13 @@ git cat-file -s 1b1d54f
 
 1. Let's make some more changes to `problemset4.R`. Modify `problemset4.R` by adding a comment at the end of your file where you write down your guilty pleasure. Save your changes but don't stage the problem set script to git yet. 
 
+echo "#My guilty pleasure is eating gummy worms" >> problemset4.R
+
     On the terminal, run `cat problemset4.R`. You decide you want to discard this change. Write the git command that allows you to do so.
     
 ```
 # Git command to discard your changes to problemset4.R
+git restore problemset4.R
 ```
 
   Check that your guilty pleasure has been deleted by executing `cat problemset4.R` once again.
@@ -242,12 +266,16 @@ git cat-file -s 1b1d54f
 
 2. You decide you _must_ share your guilty pleasure. Edit your `problemset4.R` script once again with your guilty pleasure in a comment at the end of the script. Add the file to the staging area.
 
+echo "#My guilty pleasure is eating gummy worms" >> problemset4.R
+
     Now let's say you are having second thoughts about committing this change. What command would you use to unstage this file?
 
 ```
 (git add problemset4.R)
 
 # Command to use to unstage `problemset4.R` after you've added it
+git reset HEAD problemset4.R
+
 
 ```
 
@@ -257,7 +285,7 @@ git cat-file -s 1b1d54f
 
     You regret it instantly! You remember that `git reset` and `git revert` are two commands to undo changes from a commit. What is the difference between them?
     
-    __ANSWER__: 
+    __ANSWER__: git reset is for when you stage changes and you no longer wish to stage them. git revert undoes previous commits but keeps a record of those commits.
 
 \textcolor{red}{\textbf{/1}}
 
@@ -265,7 +293,7 @@ git cat-file -s 1b1d54f
 
 ```
 # Command to revert your `my guilty pleasure` commit
-
+git revert --no-edit 876ff50f6173f553c7199e0a3311f650a75d8f5a
 ```
 
 \textcolor{red}{\textbf{/2}}
@@ -277,10 +305,16 @@ git cat-file -s 1b1d54f
 6. Connect your local `ps4_lastname_firstname` repository to the remote and push your changes. (_Hint_: Refer to Section 4.2 in the lecture)
 
 ```
-# Command to add remote repository
 
+
+# Command to add remote repository
+git remote add origin https://github.com/anyone-can-cook/ps4_kaplan_brittany.git
+git add ps4_kaplan_brittany.Rmd
+git commit -m "add problemset4.Rmd"
 
 # Command to push to remote
+git branch -M main
+git push -u origin main
 
 ```
 
@@ -295,8 +329,8 @@ git cat-file -s 1b1d54f
   - Share something you learned from this problem set or the course. Please mention your team (e.g., @anyone-can-cook/your_team_name).
 - You are also required to respond to at least one issue posted by another student.
 
-- Paste the url to your issue here: 
-- Paste the url to the issue you responded to here: 
+- Paste the url to your issue here: https://github.com/anyone-can-cook/rclass2_student_issues_w23/issues/193
+- Paste the url to the issue you responded to here:https://github.com/anyone-can-cook/rclass2_student_issues_w23/issues/183 
 
 # Knit to pdf and submit problem set  
 
